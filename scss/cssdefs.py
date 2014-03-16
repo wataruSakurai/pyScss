@@ -148,7 +148,7 @@ COLOR_NAMES = {
     'yellow': (255, 255, 0, 1),
     'yellowgreen': (154, 205, 50, 1),
 }
-COLOR_LOOKUP = dict((v, k) for (k, v) in COLOR_NAMES.items())
+COLOR_LOOKUP = dict((v, k) for (k, v) in list(COLOR_NAMES.items()))
 
 # ------------------------------------------------------------------------------
 # Built-in CSS units

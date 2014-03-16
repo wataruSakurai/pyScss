@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import os
 import re
@@ -106,8 +106,8 @@ def print_timing(level=0):
                     t1 = time.time()
                     res = func(*args, **kwargs)
                     t2 = time.time()
-                    profiling.setdefault(func.func_name, 0)
-                    profiling[func.func_name] += (t2 - t1)
+                    profiling.setdefault(func.__name__, 0)
+                    profiling[func.__name__] += (t2 - t1)
                     return res
                 else:
                     return func(*args, **kwargs)

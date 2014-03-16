@@ -4,7 +4,7 @@ These are ported from the Compass sprite library:
 http://compass-style.org/reference/compass/utilities/sprites/
 """
 
-from __future__ import absolute_import
+
 
 import six
 
@@ -15,9 +15,10 @@ import logging
 import os.path
 import tempfile
 import time
+import collections
 
 try:
-    import cPickle as pickle
+    import pickle as pickle
 except ImportError:
     import pickle
 
@@ -66,8 +67,8 @@ def alpha_composite(im1, im2, offset=None, box=None, opacity=1):
     height = o2h - o2y
     im1_data = im1.load()
     im2_data = im2.load()
-    for y in xrange(height):
-        for x in xrange(width):
+    for y in range(height):
+        for x in range(width):
             pos1 = o1x + x, o1y + y
             if pos1[0] >= im1size[0] or pos1[1] >= im1size[1]:
                 continue
@@ -128,7 +129,7 @@ def sprite_map(g, **kwargs):
     if g in sprite_maps:
         sprite_maps[glob]['*'] = now_time
     elif '..' not in g:  # Protect against going to prohibited places...
-        if callable(config.STATIC_ROOT):
+        if isinstance(config.STATIC_ROOT, collections.Callable):
             glob_path = g
             rfiles = files = sorted(config.STATIC_ROOT(g))
         else:
@@ -307,8 +308,8 @@ def sprite_map(g, **kwargs):
 
                 if has_dst_colors:
                     pixdata = image.load()
-                    for _y in xrange(iheight):
-                        for _x in xrange(iwidth):
+                    for _y in range(iheight):
+                        for _x in range(iwidth):
                             pixel = pixdata[_x, _y]
                             a = pixel[3] if len(pixel) == 4 else 255
                             if a:
@@ -363,7 +364,7 @@ def sprite_map(g, **kwargs):
                 asset = file_asset = List([String.unquoted(url), String.unquoted(repeat)])
 
             # Add the new object:
-            sprite_map = dict(zip(names, zip(sizes, rfiles, offsets_x, offsets_y)))
+            sprite_map = dict(list(zip(names, list(zip(sizes, rfiles, offsets_x, offsets_y)))))
             sprite_map['*'] = now_time
             sprite_map['*f*'] = asset_file
             sprite_map['*k*'] = key
@@ -371,7 +372,7 @@ def sprite_map(g, **kwargs):
             sprite_map['*t*'] = filetime
 
             cache_tmp = tempfile.NamedTemporaryFile(delete=False, dir=ASSETS_ROOT)
-            pickle.dump((now_time, file_asset, inline_asset, sprite_map, zip(files, sizes)), cache_tmp)
+            pickle.dump((now_time, file_asset, inline_asset, sprite_map, list(zip(files, sizes))), cache_tmp)
             cache_tmp.close()
             os.rename(cache_tmp.name, cache_path)
 

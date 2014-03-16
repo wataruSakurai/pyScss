@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import logging
 import six
@@ -71,7 +71,7 @@ class Scope(object):
         # For mapping interface
         keys = set()
         for map in self.maps:
-            keys.update(map.keys())
+            keys.update(list(map.keys()))
         return list(keys)
 
     def set(self, key, value, force_local=False):
@@ -160,7 +160,7 @@ class Namespace(object):
 
     @property
     def variables(self):
-        return dict((k, self._variables[k]) for k in self._variables.keys())
+        return dict((k, self._variables[k]) for k in list(self._variables.keys()))
 
     def variable(self, name, throw=False):
         name = normalize_var(name)
@@ -191,7 +191,7 @@ class Namespace(object):
 
     def unused_imports(self):
         unused = []
-        for import_key in self._imports.keys():
+        for import_key in list(self._imports.keys()):
             imports = self._imports[import_key]
             if not imports[0]:
                 unused.append((import_key[0], imports[2]))

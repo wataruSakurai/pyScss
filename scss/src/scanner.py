@@ -11,7 +11,7 @@ from six.moves import xrange
 
 import pstats
 import cProfile
-from cStringIO import StringIO
+from io import StringIO
 def profile(fn):
     def wrapper(*args, **kwargs):
         profiler = cProfile.Profile()
@@ -23,19 +23,19 @@ def profile(fn):
             profiler.disable()
             stats = pstats.Stats(profiler, stream=stream)
             stats.sort_stats('time')
-            print >>stream, ""
-            print >>stream, "=" * 100
-            print >>stream, "Stats:"
+            print("", file=stream)
+            print("=" * 100, file=stream)
+            print("Stats:", file=stream)
             stats.print_stats()
 
-            print >>stream, "=" * 100
-            print >>stream, "Callers:"
+            print("=" * 100, file=stream)
+            print("Callers:", file=stream)
             stats.print_callers()
 
-            print >>stream, "=" * 100
-            print >>stream, "Callees:"
+            print("=" * 100, file=stream)
+            print("Callees:", file=stream)
             stats.print_callees()
-            print >>sys.stderr, stream.getvalue()
+            print(stream.getvalue(), file=sys.stderr)
             stream.close()
         return res
     return wrapper
@@ -137,11 +137,11 @@ class Scanner(object):
             best_pat_len = 0
             for tok, regex in self.patterns:
                 if DEBUG:
-                    print("\tTrying %s: %s at pos %d -> %s" % (repr(tok), repr(regex.pattern), self.pos, repr(self.input)))
+                    print(("\tTrying %s: %s at pos %d -> %s" % (repr(tok), repr(regex.pattern), self.pos, repr(self.input))))
                 # First check to see if we're restricting to this token
                 if restrict and tok not in restrict and tok not in self.ignore:
                     if DEBUG:
-                        print "\tSkipping %s!" % repr(tok)
+                        print("\tSkipping %s!" % repr(tok))
                     continue
                 m = regex.match(self.input, self.pos)
                 if m:
@@ -149,7 +149,7 @@ class Scanner(object):
                     best_pat = tok
                     best_pat_len = len(m.group(0))
                     if DEBUG:
-                        print("Match OK! %s: %s at pos %d" % (repr(tok), repr(regex.pattern), self.pos))
+                        print(("Match OK! %s: %s at pos %d" % (repr(tok), repr(regex.pattern), self.pos)))
                     break
 
             # If we didn't find anything, raise an error
@@ -263,7 +263,7 @@ verify = "----------------------------------------------------------------------
 
 
 def process_scans(Scanner):
-    for q in xrange(20000):
+    for q in range(20000):
         process_scan(Scanner)
 profiled_process_scans = profile(process_scans)
 
@@ -280,9 +280,9 @@ if __name__ == "__main__":
             assert ret == verify, '\nFrom %s, got:\n%s\nShould be:\n%s' % (desc, ret, verify)
 
             start = datetime.now()
-            print >>sys.stderr, "Timing: %s..." % desc,
+            print("Timing: %s..." % desc, end=' ', file=sys.stderr)
             process_scans(scanner)
             elap = datetime.now() - start
 
             elapms = elap.seconds * 1000.0 + elap.microseconds / 1000.0
-            print >>sys.stderr, "Done! took %06.3fms" % elapms
+            print("Done! took %06.3fms" % elapms, file=sys.stderr)

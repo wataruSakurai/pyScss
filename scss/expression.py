@@ -1,5 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 from functools import partial
 import logging
@@ -268,15 +268,15 @@ class NotOp(Expression):
 
 class CallOp(Expression):
     def __repr__(self):
-        return '<%s(%s, %s)>' % (self.__class__.__name__, repr(self.func_name), repr(self.argspec))
+        return '<%s(%s, %s)>' % (self.__class__.__name__, repr(self.__name__), repr(self.argspec))
 
     def __init__(self, func_name, argspec):
-        self.func_name = func_name
+        self.__name__ = func_name
         self.argspec = argspec
 
     def evaluate(self, calculator, divide=False):
         # TODO bake this into the context and options "dicts", plus library
-        func_name = normalize_var(self.func_name)
+        func_name = normalize_var(self.__name__)
 
         argspec_node = self.argspec
 
@@ -291,7 +291,7 @@ class CallOp(Expression):
         # how does that affect mixins?
         kwargs = dict(
             (key.lstrip('$').replace('-', '_'), value)
-            for key, value in kwargs.items())
+            for key, value in list(kwargs.items()))
 
         # TODO merge this with the library
         funct = None
@@ -326,7 +326,7 @@ class CallOp(Expression):
         rendered_args = [arg.render() for arg in args]
 
         return String(
-            u"%s(%s)" % (func_name, u", ".join(rendered_args)),
+            "%s(%s)" % (func_name, ", ".join(rendered_args)),
             quotes=None)
 
 

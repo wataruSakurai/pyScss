@@ -11,7 +11,7 @@ from six.moves import xrange
 
 import pstats
 import cProfile
-from cStringIO import StringIO
+from io import StringIO
 def profile(fn):
     def wrapper(*args, **kwargs):
         profiler = cProfile.Profile()
@@ -23,19 +23,19 @@ def profile(fn):
             profiler.disable()
             stats = pstats.Stats(profiler, stream=stream)
             stats.sort_stats('time')
-            print >>stream, ""
-            print >>stream, "=" * 100
-            print >>stream, "Stats:"
+            print("", file=stream)
+            print("=" * 100, file=stream)
+            print("Stats:", file=stream)
             stats.print_stats()
 
-            print >>stream, "=" * 100
-            print >>stream, "Callers:"
+            print("=" * 100, file=stream)
+            print("Callers:", file=stream)
             stats.print_callers()
 
-            print >>stream, "=" * 100
-            print >>stream, "Callees:"
+            print("=" * 100, file=stream)
+            print("Callees:", file=stream)
             stats.print_callees()
-            print >>sys.stderr, stream.getvalue()
+            print(stream.getvalue(), file=sys.stderr)
             stream.close()
         return res
     return wrapper
@@ -103,7 +103,7 @@ SELPROP = 11
 
 
 def _start_string(codestr, ctx, i, c):
-    if DEBUG: print "_start_string"
+    if DEBUG: print("_start_string")
     # A string starts
     ctx[INSTR] = c
     return
@@ -111,7 +111,7 @@ def _start_string(codestr, ctx, i, c):
 
 
 def _end_string(codestr, ctx, i, c):
-    if DEBUG: print "_end_string"
+    if DEBUG: print("_end_string")
     # A string ends (FIXME: needs to accept escaped characters)
     ctx[INSTR] = None
     return
@@ -119,7 +119,7 @@ def _end_string(codestr, ctx, i, c):
 
 
 def _start_parenthesis(codestr, ctx, i, c):
-    if DEBUG: print "_start_parenthesis"
+    if DEBUG: print("_start_parenthesis")
     # parenthesis begins:
     ctx[PAR] += 1
     ctx[THIN] = None
@@ -129,14 +129,14 @@ def _start_parenthesis(codestr, ctx, i, c):
 
 
 def _end_parenthesis(codestr, ctx, i, c):
-    if DEBUG: print "_end_parenthesis"
+    if DEBUG: print("_end_parenthesis")
     ctx[PAR] -= 1
     return
     yield
 
 
 def _flush_properties(codestr, ctx, i, c):
-    if DEBUG: print "_flush_properties"
+    if DEBUG: print("_flush_properties")
     # Flush properties
     if ctx[LOSE] <= ctx[INIT]:
         _property, ctx[LINENO] = _strip_selprop(codestr[ctx[LOSE]:ctx[INIT]], ctx[LINENO])
@@ -149,7 +149,7 @@ def _flush_properties(codestr, ctx, i, c):
 
 
 def _start_block1(codestr, ctx, i, c):
-    if DEBUG: print "_start_block1"
+    if DEBUG: print("_start_block1")
     # Start level-1 block
     if i > 0 and codestr[i - 1] == '#':  # Do not process #{...} as blocks!
         ctx[SKIP] = True
@@ -166,7 +166,7 @@ def _start_block1(codestr, ctx, i, c):
 
 
 def _start_block(codestr, ctx, i, c):
-    if DEBUG: print "_start_block"
+    if DEBUG: print("_start_block")
     # Start blocks:
     ctx[DEPTH] += 1
     return
@@ -174,7 +174,7 @@ def _start_block(codestr, ctx, i, c):
 
 
 def _end_block1(codestr, ctx, i, c):
-    if DEBUG: print "_end_block1"
+    if DEBUG: print("_end_block1")
     # End level-1 block:
     ctx[DEPTH] -= 1
     if not ctx[SKIP]:
@@ -192,7 +192,7 @@ def _end_block1(codestr, ctx, i, c):
 
 
 def _end_block(codestr, ctx, i, c):
-    if DEBUG: print "_end_block"
+    if DEBUG: print("_end_block")
     # Block ends:
     ctx[DEPTH] -= 1
     return
@@ -200,7 +200,7 @@ def _end_block(codestr, ctx, i, c):
 
 
 def _end_property(codestr, ctx, i, c):
-    if DEBUG: print "_end_property"
+    if DEBUG: print("_end_property")
     # End of property (or block):
     ctx[INIT] = i
     if ctx[LOSE] <= ctx[INIT]:
@@ -215,7 +215,7 @@ def _end_property(codestr, ctx, i, c):
 
 
 def _mark_safe(codestr, ctx, i, c):
-    if DEBUG: print "_mark_safe"
+    if DEBUG: print("_mark_safe")
     # We are on a safe zone
     if ctx[THIN] is not None and _strip(codestr[ctx[THIN]:i]):
         ctx[INIT] = ctx[THIN]
@@ -226,7 +226,7 @@ def _mark_safe(codestr, ctx, i, c):
 
 
 def _mark_thin(codestr, ctx, i, c):
-    if DEBUG: print "_mark_thin"
+    if DEBUG: print("_mark_thin")
     # Step on thin ice, if it breaks, it breaks here
     if ctx[THIN] is not None and _strip(codestr[ctx[THIN]:i]):
         ctx[INIT] = ctx[THIN]
@@ -313,7 +313,7 @@ def _locate_blocks_a(codestr):
         c = m.group()
 
         fn = scss_function_map.get((c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH]))
-        if DEBUG: print fn and ' > ' or '   ', fn and fn.__name__, (c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH])
+        if DEBUG: print(fn and ' > ' or '   ', fn and fn.__name__, (c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH]))
         if fn:
             for y in fn(codestr, ctx, m.start(), c):
                 yield y
@@ -329,7 +329,7 @@ def _locate_blocks_a(codestr):
         while ctx[DEPTH] > 0 and ctx[INIT] < codestr_end:
             c = '}'
             fn = scss_function_map.get((c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH]))
-            if DEBUG: print fn and ' > ' or ' ! ', fn and fn.__name__, (c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH])
+            if DEBUG: print(fn and ' > ' or ' ! ', fn and fn.__name__, (c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH]))
             if fn:
                 for y in fn(codestr, ctx, m.start(), c):
                     yield y
@@ -338,7 +338,7 @@ def _locate_blocks_a(codestr):
         ctx[INIT] = codestr_end
         c = None
         fn = scss_function_map.get((c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH]))
-        if DEBUG: print fn and ' > ' or ' ! ', fn and fn.__name__, (c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH])
+        if DEBUG: print(fn and ' > ' or ' ! ', fn and fn.__name__, (c, ctx[INSTR], ctx[PAR] != 0, 2 if ctx[DEPTH] > 1 else ctx[DEPTH]))
         if fn:
             for y in fn(codestr, ctx, m.start(), c):
                 yield y
@@ -463,7 +463,7 @@ try:
     from _speedups import locate_blocks as _locate_blocks_c
 except ImportError:
     _locate_blocks_c = None
-    print >>sys.stderr, "Scanning acceleration disabled (_speedups not found)!"
+    print("Scanning acceleration disabled (_speedups not found)!", file=sys.stderr)
 
 
 
@@ -518,7 +518,7 @@ def process_block(locate_blocks, codestr, level=0, dump=False):
 
 
 def process_blocks(locate_blocks, codestr):
-    for q in xrange(20000):
+    for q in range(20000):
         process_block(locate_blocks, codestr)
 profiled_process_blocks = profile(process_blocks)
 
@@ -538,9 +538,9 @@ if __name__ == "__main__":
             assert ret == verify, '\nFrom %s, got:\n%s\nShould be:\n%s' % (desc, ret, verify)
 
             start = datetime.now()
-            print >>sys.stderr, "Timing: %s..." % desc,
+            print("Timing: %s..." % desc, end=' ', file=sys.stderr)
             process_blocks(locate_blocks, codestr)
             elap = datetime.now() - start
 
             elapms = elap.seconds * 1000.0 + elap.microseconds / 1000.0
-            print >>sys.stderr, "Done! took %06.3fms" % elapms
+            print("Done! took %06.3fms" % elapms, file=sys.stderr)

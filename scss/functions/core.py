@@ -2,8 +2,8 @@
 Ruby implementation.
 """
 
-from __future__ import absolute_import
-from __future__ import division
+
+
 
 import logging
 import math
@@ -221,7 +221,7 @@ def lightness(color):
 @register('ie-hex-str', 1)
 def ie_hex_str(color):
     c = Color(color).value
-    return String(u'#%02X%02X%02X%02X' % (round(c[3] * 255), round(c[0]), round(c[1]), round(c[2])))
+    return String('#%02X%02X%02X%02X' % (round(c[3] * 255), round(c[0]), round(c[1]), round(c[2])))
 
 
 # ------------------------------------------------------------------------------
@@ -637,7 +637,7 @@ def append(lst, val, separator=None):
 
 @register('index', 2)
 def index(lst, val):
-    for i in xrange(len(lst)):
+    for i in range(len(lst)):
         if lst.value[i] == val:
             return Number(i + 1)
     return Boolean(False)

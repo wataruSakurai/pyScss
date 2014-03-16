@@ -1,7 +1,7 @@
 """Image utilities ported from Compass."""
 
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 import base64
 import hashlib
@@ -18,6 +18,7 @@ from scss.functions.compass.helpers import add_cache_buster
 from scss.functions.library import FunctionLibrary
 from scss.types import Color, List, Number, String
 from scss.util import escape, getmtime
+import collections
 
 try:
     from PIL import Image
@@ -58,7 +59,7 @@ def _image_url(path, only_path=False, cache_buster=True, dst_color=None, src_col
         mime_type = 'image/%s' % fileext
     path = None
     IMAGES_ROOT = _images_root()
-    if callable(IMAGES_ROOT):
+    if isinstance(IMAGES_ROOT, collections.Callable):
         try:
             _file, _storage = list(IMAGES_ROOT(filepath))[0]
         except IndexError:
@@ -141,8 +142,8 @@ def _image_url(path, only_path=False, cache_buster=True, dst_color=None, src_col
                 for i, dst_color in enumerate(dst_colors):
                     src_color = src_colors[i]
                     pixdata = image.load()
-                    for _y in xrange(image.size[1]):
-                        for _x in xrange(image.size[0]):
+                    for _y in range(image.size[1]):
+                        for _x in range(image.size[0]):
                             pixel = pixdata[_x, _y]
                             if pixel[:3] == src_color:
                                 pixdata[_x, _y] = tuple([int(c) for c in dst_color] + [pixel[3] if len(pixel) == 4 else 255])
@@ -234,7 +235,7 @@ def image_width(image):
     except KeyError:
         width = 0
         IMAGES_ROOT = _images_root()
-        if callable(IMAGES_ROOT):
+        if isinstance(IMAGES_ROOT, collections.Callable):
             try:
                 _file, _storage = list(IMAGES_ROOT(filepath))[0]
             except IndexError:
@@ -268,7 +269,7 @@ def image_height(image):
     except KeyError:
         height = 0
         IMAGES_ROOT = _images_root()
-        if callable(IMAGES_ROOT):
+        if isinstance(IMAGES_ROOT, collections.Callable):
             try:
                 _file, _storage = list(IMAGES_ROOT(filepath))[0]
             except IndexError:

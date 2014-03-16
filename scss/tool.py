@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 from contextlib import contextmanager
 import logging
@@ -177,7 +177,7 @@ def do_build(options, args):
     else:
         output.write(css.compile(sys.stdin.read(), is_sass=options.is_sass))
 
-    for f, t in profiling.items():
+    for f, t in list(profiling.items()):
         sys.stderr.write("%s took %03fs" % (f, t))
 
 
@@ -288,7 +288,7 @@ def run_repl(is_sass=False):
         print("Welcome to %s interactive shell" % (BUILD_INFO,))
         while True:
             try:
-                in_ = raw_input('>>> ').strip()
+                in_ = input('>>> ').strip()
                 for output in repl(in_):
                     print(output)
             except (EOFError, KeyboardInterrupt):
@@ -356,9 +356,9 @@ class SassRepl(object):
                         if code == '*':
                             pass
                         elif code:
-                            variables = dict((k, v) for k, v in variables.items() if code in k)
+                            variables = dict((k, v) for k, v in list(variables.items()) if code in k)
                         else:
-                            variables = dict((k, v) for k, v in variables.items() if not k.startswith('$--'))
+                            variables = dict((k, v) for k, v in list(variables.items()) if not k.startswith('$--'))
                         yield pformat(variables)
 
                     elif name in ('o', 'opt', 'option'):
@@ -366,9 +366,9 @@ class SassRepl(object):
                         if code == '*':
                             pass
                         elif code:
-                            opts = dict((k, v) for k, v in opts.items() if code in k)
+                            opts = dict((k, v) for k, v in list(opts.items()) if code in k)
                         else:
-                            opts = dict((k, v) for k, v in opts.items() if not k.startswith('@'))
+                            opts = dict((k, v) for k, v in list(opts.items()) if not k.startswith('@'))
                         yield pformat(opts)
 
                     elif name in ('m', 'mix', 'mixin', 'f', 'func', 'funct', 'function'):
@@ -379,7 +379,7 @@ class SassRepl(object):
                         if code == '*':
                             pass
                         elif code:
-                            funcs = dict((k, v) for k, v in funcs.items() if code in k[0])
+                            funcs = dict((k, v) for k, v in list(funcs.items()) if code in k[0])
                         else:
                             pass
                         # TODO print source when possible

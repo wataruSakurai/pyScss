@@ -5,7 +5,7 @@ See: http://compass-style.org/reference/compass/helpers/
 This collection is not necessarily complete or up-to-date.
 """
 
-from __future__ import absolute_import
+
 
 import base64
 import logging
@@ -20,6 +20,7 @@ from scss.functions.library import FunctionLibrary
 from scss.types import Boolean, List, Null, Number, String
 from scss.util import escape, to_str, getmtime
 import re
+import collections
 
 log = logging.getLogger(__name__)
 
@@ -295,7 +296,7 @@ def enumerate_(prefix, frm, through, separator='-'):
         rev = lambda x: x
 
     ret = []
-    for i in rev(range(frm, through + 1)):
+    for i in rev(list(range(frm, through + 1))):
         if prefix and prefix.value:
             ret.append(String.unquoted(prefix.value + separator + str(i)))
         else:
@@ -527,7 +528,7 @@ def _font_url(path, only_path=False, cache_buster=True, inline=False):
     filepath = String.unquoted(path).value
     file = None
     FONTS_ROOT = _fonts_root()
-    if callable(FONTS_ROOT):
+    if isinstance(FONTS_ROOT, collections.Callable):
         try:
             _file, _storage = list(FONTS_ROOT(filepath))[0]
         except IndexError:
@@ -632,7 +633,7 @@ def stylesheet_url(path, only_path=False, cache_buster=True):
     be returned instead of a `url()` function
     """
     filepath = String.unquoted(path).value
-    if callable(config.STATIC_ROOT):
+    if isinstance(config.STATIC_ROOT, collections.Callable):
         try:
             _file, _storage = list(config.STATIC_ROOT(filepath))[0]
         except IndexError:

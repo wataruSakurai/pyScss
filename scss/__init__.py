@@ -34,10 +34,11 @@ xCSS:
     http://xcss.antpaw.org/docs/
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
+
+
 
 from scss.scss_meta import BUILD_INFO, PROJECT, VERSION, REVISION, URL, AUTHOR, AUTHOR_EMAIL, LICENSE
+import collections
 
 __project__ = PROJECT
 __version__ = VERSION
@@ -98,7 +99,7 @@ _safe_strings = {
     '^curlybracketopen^': '{',
     '^curlybracketclosed^': '}',
 }
-_reverse_safe_strings = dict((v, k) for k, v in _safe_strings.items())
+_reverse_safe_strings = dict((v, k) for k, v in list(_safe_strings.items()))
 _safe_strings_re = re.compile('|'.join(map(re.escape, _safe_strings)))
 _reverse_safe_strings_re = re.compile('|'.join(map(re.escape, _reverse_safe_strings)))
 
@@ -301,7 +302,7 @@ class Scss(object):
         self._scss_vars = {}
         if scss_vars:
             calculator = Calculator()
-            for var_name, value in scss_vars.items():
+            for var_name, value in list(scss_vars.items()):
                 if isinstance(value, six.string_types):
                     scss_value = calculator.evaluate_expression(value)
                     if scss_value is None:
@@ -325,11 +326,11 @@ class Scss(object):
 
     def get_scss_constants(self):
         scss_vars = self.root_namespace.variables
-        return dict((k, v) for k, v in scss_vars.items() if k and (not k.startswith('$') or k.startswith('$') and k[1].isupper()))
+        return dict((k, v) for k, v in list(scss_vars.items()) if k and (not k.startswith('$') or k.startswith('$') and k[1].isupper()))
 
     def get_scss_vars(self):
         scss_vars = self.root_namespace.variables
-        return dict((k, v) for k, v in scss_vars.items() if k and not (not k.startswith('$') or k.startswith('$') and k[1].isupper()))
+        return dict((k, v) for k, v in list(scss_vars.items()) if k and not (not k.startswith('$') or k.startswith('$') and k[1].isupper()))
 
     def reset(self, input_scss=None):
         # Initialize
@@ -672,13 +673,13 @@ class Scss(object):
         elif callee_argspec.inject:
             # Callee namespace gets all the extra kwargs whether declared or
             # not
-            for var_name, value in kwargs.items():
+            for var_name, value in list(kwargs.items()):
                 callee_namespace.set_variable(var_name, value, local_only=True)
             kwargs = {}
 
         # TODO would be nice to say where the mixin/function came from
         if kwargs:
-            raise NameError("%s has no such argument %s" % (name, kwargs.keys()[0]))
+            raise NameError("%s has no such argument %s" % (name, list(kwargs.keys())[0]))
 
         if args:
             raise NameError("%s received extra arguments: %r" % (name, args))
@@ -720,7 +721,7 @@ class Scss(object):
                     # to avoid this back-and-forth somehow
                     kwargs = dict(
                         (normalize_var('$' + key), value)
-                        for (key, value) in kwargs.items())
+                        for (key, value) in list(kwargs.items()))
 
                     self._populate_namespace_from_call(
                         "Function {0}".format(funct),
@@ -942,7 +943,7 @@ class Scss(object):
         Implements @import for sprite-maps
         Imports magic sprite map directories
         """
-        if callable(config.STATIC_ROOT):
+        if isinstance(config.STATIC_ROOT, collections.Callable):
             files = sorted(config.STATIC_ROOT(block.argument))
         else:
             glob_path = os.path.join(config.STATIC_ROOT, block.argument)
@@ -1090,7 +1091,7 @@ class Scss(object):
             # DEVIATION: Allow not creating a new namespace
             inner_rule.namespace = rule.namespace
 
-        for i in rev(range(frm, through + 1)):
+        for i in rev(list(range(frm, through + 1))):
             inner_rule.namespace.set_variable(var, Number(i))
             self.manage_children(inner_rule, scope)
 
@@ -1154,7 +1155,7 @@ class Scss(object):
         _rule.namespace = rule.namespace
         _rule.properties = {}
         self.manage_children(_rule, scope)
-        for name, value in _rule.properties.items():
+        for name, value in list(_rule.properties.items()):
             rule.namespace.set_variable(name, value)
 
     @print_timing(10)
@@ -1455,7 +1456,7 @@ class Scss(object):
         txt = self._textwrap_wordsep_re.sub('\1', txt)
 
         # Replace all the strings back:
-        for fin, ori in subs.items():
+        for fin, ori in list(subs.items()):
             txt = txt.replace(fin, ori)
 
         # Split in chunks:
@@ -1571,7 +1572,7 @@ class Scss(object):
                 dangling_property = True
 
         # Close all remaining blocks
-        for i in reversed(range(len(prev_ancestry_headers))):
+        for i in reversed(list(range(len(prev_ancestry_headers)))):
             result += tb * i + '}' + rnl
 
         return (result, total_rules, total_selectors)

@@ -43,7 +43,7 @@ def compile_with_ruby_sass(infile):
         ret = grep_proc.wait()
 
     if ret != 0:
-        print("...whoops, bailing on {}".format(infile))
+        print(("...whoops, bailing on {}".format(infile)))
         os.unlink(infile)
         try:
             os.unlink(outfile)
@@ -69,16 +69,16 @@ def sync_tests(sassc_root):
         elif 'expected_output.css' in fileset:
             outfile = 'expected_output.css'
         else:
-            print("can't find an output file in {}, skipping".format(path))
+            print(("can't find an output file in {}, skipping".format(path)))
             continue
         fileset.discard(outfile)
 
         test_name = path.replace('/', '-')
-        print("cool, found a test pair:", path)
+        print(("cool, found a test pair:", path))
 
         if fileset or dirnames:
             # TODO
-            print("... extra files i don't know how to handle, skipping -- {!r} {!r}".format(fileset, dirnames))
+            print(("... extra files i don't know how to handle, skipping -- {!r} {!r}".format(fileset, dirnames)))
             continue
 
         shutil.copyfile(

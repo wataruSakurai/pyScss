@@ -7,7 +7,7 @@ Currently, test files must be nested exactly one directory below `files/`.
 This limitation is completely arbitrary.
 """
 
-from __future__ import absolute_import
+
 
 import os.path
 import logging

@@ -55,9 +55,9 @@ class Generator:
             if n == '#ignore':
                 n = t
                 self.ignore.append(n)
-            if n in self.tokens.keys() and self.tokens[n] != t:
+            if n in list(self.tokens.keys()) and self.tokens[n] != t:
                 if n not in self.ignore:
-                    print 'Warning: token', n, 'multiply defined.'
+                    print('Warning: token', n, 'multiply defined.')
             else:
                 self.terminals.append(n)
             self.tokens[n] = t
@@ -77,7 +77,7 @@ class Generator:
         return self.options.get(name, 0)
 
     def non_ignored_tokens(self):
-        return filter(lambda x, i=self.ignore: x not in i, self.terminals)
+        return list(filter(lambda x, i=self.ignore: x not in i, self.terminals))
 
     def changed(self):
         self.change_count = 1 + self.change_count
@@ -119,11 +119,11 @@ class Generator:
             return '%s == %s' % (x, repr(b[0]))
         if full and len(b) > len(full) / 2:
             # Reverse the sense of the test.
-            not_b = filter(lambda x, b=b:
-            x not in b, full)
+            not_b = list(filter(lambda x, b=b:
+            x not in b, full))
             return self.not_in_test(r, x, full, not_b)
         n = None
-        for k, v in self.sets.items():
+        for k, v in list(self.sets.items()):
             if v == b:
                 n = k
         if n is None:
@@ -140,7 +140,7 @@ class Generator:
         if len(b) == 1:
             return '%s != %s' % (x, repr(b[0]))
         n = None
-        for k, v in self.sets.items():
+        for k, v in list(self.sets.items()):
             if v == b:
                 n = k
         if n is None:
@@ -153,7 +153,7 @@ class Generator:
 
     def peek_call(self, r, a):
         n = None
-        for k, v in self.sets.items():
+        for k, v in list(self.sets.items()):
             if v == a:
                 n = k
         if n is None:
@@ -198,21 +198,21 @@ class Generator:
     def dump_information(self):
         self.calculate()
         for r in self.goals:
-            print '    _____' + '_' * len(r)
-            print ('___/Rule ' + r + '\\' + '_' * 80)[:79]
+            print('    _____' + '_' * len(r))
+            print(('___/Rule ' + r + '\\' + '_' * 80)[:79])
             queue = [self.rules[r]]
             while queue:
                 top = queue[0]
                 del queue[0]
 
-                print repr(top)
+                print(repr(top))
                 top.first.sort()
                 top.follow.sort()
                 eps = []
                 if top.accepts_epsilon:
                     eps = ['(null)']
-                print '     FIRST:', join(top.first + eps, ', ')
-                print '    FOLLOW:', join(top.follow, ', ')
+                print('     FIRST:', join(top.first + eps, ', '))
+                print('    FOLLOW:', join(top.follow, ', '))
                 for x in top.get_children():
                     queue.append(x)
 
@@ -252,7 +252,7 @@ class Generator:
             self.rules[r].output(self, INDENT + INDENT)
             self.write("\n")
 
-        for n, s in self.sets.items():
+        for n, s in list(self.sets.items()):
             self.write("    %s = %s\n" % (n, set(s)))
 
         if self.postparser is not None:
@@ -366,7 +366,7 @@ class NonTerminal(Node):
                 self.accepts_epsilon = self.target.accepts_epsilon
                 gen.changed()
         except KeyError:  # Oops, it's nonexistent
-            print 'Error: no rule <%s>' % self.name
+            print('Error: no rule <%s>' % self.name)
             self.target = self
 
     def __str__(self):
@@ -407,7 +407,7 @@ class Sequence(Node):
         return self.children
 
     def __str__(self):
-        return '( %s )' % join(map(lambda x: str(x), self.children))
+        return '( %s )' % join([str(x) for x in self.children])
 
     def update(self, gen):
         Node.update(self, gen)
@@ -460,7 +460,7 @@ class Choice(Node):
         return self.children
 
     def __str__(self):
-        return '( %s )' % join(map(lambda x: str(x), self.children), ' | ')
+        return '( %s )' % join([str(x) for x in self.children], ' | ')
 
     def update(self, gen):
         Node.update(self, gen)
@@ -496,11 +496,11 @@ class Choice(Node):
             tokens_seen = tokens_seen + testset
             if removed:
                 if not testset:
-                    print 'Error in rule', self.rule + ':', c, 'never matches.'
+                    print('Error in rule', self.rule + ':', c, 'never matches.')
                 else:
-                    print 'Warning:', self
-                print ' * These tokens are being ignored:', join(removed, ', ')
-                print '   due to previous choices using them.'
+                    print('Warning:', self)
+                print(' * These tokens are being ignored:', join(removed, ', '))
+                print('   due to previous choices using them.')
 
             if testset:
                 if not tokens_unseen:  # context sensitive scanners only!
@@ -559,7 +559,7 @@ class Option(Wrapper):
 
     def output(self, gen, indent):
         if self.child.accepts_epsilon:
-            print 'Warning in rule', self.rule + ': contents may be empty.'
+            print('Warning in rule', self.rule + ': contents may be empty.')
         gen.write(indent, "if %s:\n" %
                   gen.peek_test(self.rule, self.first, self.child.first))
         self.child.output(gen, indent + INDENT)
@@ -581,9 +581,9 @@ class Plus(Wrapper):
 
     def output(self, gen, indent):
         if self.child.accepts_epsilon:
-            print 'Warning in rule', self.rule + ':'
-            print ' * The repeated pattern could be empty.  The resulting'
-            print '   parser may not work properly.'
+            print('Warning in rule', self.rule + ':')
+            print(' * The repeated pattern could be empty.  The resulting')
+            print('   parser may not work properly.')
         gen.write(indent, "while 1:\n")
         self.child.output(gen, indent + INDENT)
         union = self.first[:]
@@ -605,9 +605,9 @@ class Star(Plus):
 
     def output(self, gen, indent):
         if self.child.accepts_epsilon:
-            print 'Warning in rule', self.rule + ':'
-            print ' * The repeated pattern could be empty.  The resulting'
-            print '   parser probably will not work properly.'
+            print('Warning in rule', self.rule + ':')
+            print(' * The repeated pattern could be empty.  The resulting')
+            print('   parser probably will not work properly.')
         gen.write(indent, "while %s:\n" %
                   gen.peek_test(self.rule, self.follow, self.child.first))
         self.child.output(gen, indent + INDENT)
@@ -632,13 +632,13 @@ def cleanup_choice(lst):
         return Sequence([])
     if len(lst) == 1:
         return lst[0]
-    return apply(Choice, tuple(lst))
+    return Choice(*tuple(lst))
 
 
 def cleanup_sequence(lst):
     if len(lst) == 1:
         return lst[0]
-    return apply(Sequence, tuple(lst))
+    return Sequence(*tuple(lst))
 
 
 def cleanup_rep(node, rep):
@@ -651,10 +651,10 @@ def cleanup_rep(node, rep):
 
 
 def resolve_name(tokens, id, args):
-    if id in map(lambda x: x[0], tokens):
+    if id in [x[0] for x in tokens]:
         # It's a token
         if args:
-            print 'Warning: ignoring parameters on TOKEN %s<<%s>>' % (id, args)
+            print('Warning: ignoring parameters on TOKEN %s<<%s>>' % (id, args))
         return Terminal(id)
     else:
         # It's a name, so assume it's a nonterminal
@@ -823,8 +823,8 @@ def generate(inputfilename, outputfilename='', dump=0, **flags):
         else:
             raise Exception("Missing output filename")
 
-    print 'Input Grammar:', inputfilename
-    print 'Output File:', outputfilename
+    print('Input Grammar:', inputfilename)
+    print('Output File:', outputfilename)
 
     DIVIDER = '\n%%\n'  # This pattern separates the pre/post parsers
     preparser, postparser = None, None  # Code before and after the parser desc
@@ -857,14 +857,14 @@ def generate(inputfilename, outputfilename='', dump=0, **flags):
         t.postparser = postparser
 
     # Check the options
-    for f in t.options.keys():
+    for f in list(t.options.keys()):
         for opt, _, _ in yapps_options:
             if f == opt:
                 break
         else:
-            print 'Warning: unrecognized option', f
+            print('Warning: unrecognized option', f)
     # Add command line options to the set
-    for f in flags.keys():
+    for f in list(flags.keys()):
         t.options[f] = flags[f]
 
     # Generate the output
@@ -878,12 +878,12 @@ if __name__ == '__main__':
     import getopt
     optlist, args = getopt.getopt(sys.argv[1:], 'f:', ['dump'])
     if not args or len(args) > 2:
-        print 'Usage:'
-        print '  python', sys.argv[0], '[flags] input.g [output.py]'
-        print 'Flags:'
-        print ('  --dump' + ' ' * 40)[:35] + 'Dump out grammar information'
+        print('Usage:')
+        print('  python', sys.argv[0], '[flags] input.g [output.py]')
+        print('Flags:')
+        print(('  --dump' + ' ' * 40)[:35] + 'Dump out grammar information')
         for flag, _, doc in yapps_options:
-            print ('  -f' + flag + ' ' * 40)[:35] + doc
+            print(('  -f' + flag + ' ' * 40)[:35] + doc)
     else:
         # Read in the options and create a list of flags
         flags = {}
@@ -896,6 +896,6 @@ if __name__ == '__main__':
                 if opt == ('--dump', ''):
                     flags['dump'] = 1
                 else:
-                    print 'Warning: unrecognized option', opt[0], opt[1]
+                    print('Warning: unrecognized option', opt[0], opt[1])
 
-        apply(generate, tuple(args), flags)
+        generate(*tuple(args), **flags)

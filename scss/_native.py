@@ -1,5 +1,5 @@
 """Pure-Python scanner and parser, used if _speedups is not available."""
-from __future__ import print_function
+
 
 from scss.cssdefs import SEPARATOR
 import re

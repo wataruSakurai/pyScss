@@ -4,8 +4,8 @@ implementation.
 
 Tests dependent on the Sass syntax have been included, but are not run.
 """
-from __future__ import absolute_import
-from __future__ import unicode_literals
+
+
 
 from scss import Scss
 

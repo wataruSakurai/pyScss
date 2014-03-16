@@ -3,7 +3,7 @@ documentation:
 
 http://sass-lang.com/docs/yardoc/Sass/Script/Functions.html
 """
-from __future__ import division
+
 
 from scss.expression import Calculator
 from scss.functions.core import CORE_LIBRARY

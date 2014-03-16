@@ -1,6 +1,6 @@
 """Functions new to the pyScss library."""
 
-from __future__ import absolute_import
+
 
 import base64
 import hashlib
@@ -62,12 +62,12 @@ def _image_noise(pixdata, size, density=None, intensity=None, color=None, opacit
     pixels = {}
 
     if background:
-        for y in xrange(size):
-            for x in xrange(size):
+        for y in range(size):
+            for x in range(size):
                 ca = float(background[3])
                 pixels[(x, y)] = (background[0] * ca, background[1] * ca, background[2] * ca, ca)
 
-    loops = max(map(len, (density, intensity, color, opacity, monochrome)))
+    loops = max(list(map(len, (density, intensity, color, opacity, monochrome))))
     for l in range(loops):
         _density = density[l % len(density)]
         _intensity = intensity[l % len(intensity)]
@@ -92,7 +92,7 @@ def _image_noise(pixdata, size, density=None, intensity=None, color=None, opacit
         else:
             xb = 0
         r, g, b, a = _color
-        for i in xrange(int(round(_density * size ** 2))):
+        for i in range(int(round(_density * size ** 2))):
             x = random.randint(1, size)
             y = random.randint(1, size)
             cc = random.randint(xa, xb)
@@ -106,7 +106,7 @@ def _image_noise(pixdata, size, density=None, intensity=None, color=None, opacit
             src = (cr * ca, cg * ca, cb * ca, ca)
             pixels[pos] = (src[0] + dst[0] * ica, src[1] + dst[1] * ica, src[2] + dst[2] * ica, src[3] + dst[3] * ica)
 
-    for pos, col in pixels.items():
+    for pos, col in list(pixels.items()):
         ca = col[3]
         if ca:
             pixdata[pos] = tuple(int(round(c)) for c in (col[0] / ca, col[1] / ca, col[2] / ca, ca * 255))
@@ -165,12 +165,12 @@ def _image_brushed(pixdata, size, density=None, intensity=None, color=None, opac
     pixels = {}
 
     if background:
-        for y in xrange(size):
-            for x in xrange(size):
+        for y in range(size):
+            for x in range(size):
                 ca = float(background[3])
                 pixels[(x, y)] = (background[0] * ca, background[1] * ca, background[2] * ca, ca)
 
-    loops = max(map(len, (density, intensity, color, opacity, monochrome, direction, spread)))
+    loops = max(list(map(len, (density, intensity, color, opacity, monochrome, direction, spread))))
     for l in range(loops):
         _density = density[l % len(density)]
         _intensity = intensity[l % len(intensity)]
@@ -199,7 +199,7 @@ def _image_brushed(pixdata, size, density=None, intensity=None, color=None, opac
         r, g, b, a = _color
         pp = ppgen(_direction)
         if pp:
-            for y in xrange(size):
+            for y in range(size):
                 if _spread and (y + (l % 2)) % _spread:
                     continue
                 o = random.randint(1, size)
@@ -218,7 +218,7 @@ def _image_brushed(pixdata, size, density=None, intensity=None, color=None, opac
                     aa = da
                 d = 0
                 p = ip
-                for x in xrange(size):
+                for x in range(size):
                     if d == 0:
                         if p > 0:
                             p -= 1
@@ -255,7 +255,7 @@ def _image_brushed(pixdata, size, density=None, intensity=None, color=None, opac
                     src = (cr * ca, cg * ca, cb * ca, ca)
                     pixels[pos] = (src[0] + dst[0] * ica, src[1] + dst[1] * ica, src[2] + dst[2] * ica, src[3] + dst[3] * ica)
 
-    for pos, col in pixels.items():
+    for pos, col in list(pixels.items()):
         ca = col[3]
         if ca:
             pixdata[pos] = tuple(int(round(c)) for c in (col[0] / ca, col[1] / ca, col[2] / ca, ca * 255))
