@@ -7,7 +7,7 @@ that adds programming capabilities and some other syntactic sugar.
 Quickstart
 ----------
 
-You need Python 2.6 or later.  Python 3 is also supported.
+You need Python 3 or later.
 
 Installation::
 
